@@ -1,103 +1,151 @@
-import Image from "next/image";
+// 文件头部声明和导入
+// 声明这是一个客户端组件，允许使用 React hooks 和交互功能
+'use client';
 
+// 导入 React 的 use State 钩子 用于状态管理
+import { useState } from 'react';
+import { sendMessage, Message } from './services/api';
+import MarkdownRenderer from './components/MarkdownRenderer';
+
+// 定义主组件 Home
 export default function Home() {
-  return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="list-inside list-decimal text-sm/6 text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-          <li className="mb-2 tracking-[-.01em]">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-[family-name:var(--font-geist-mono)] font-semibold">
-              app/page.tsx
-            </code>
-            .
-          </li>
-          <li className="tracking-[-.01em]">
-            Save and see your changes instantly.
-          </li>
-        </ol>
+  // 组件状态定义
+  // 定义消息数组状态，每条消息包含类型（用户/AI）和内容
+  const [messages, setMessages] = useState<Array<{type: 'user' | 'ai', content: string}>>([]);
+  // 定义输入框状态，用于存储用户输入的内容
+  const [input, setInput] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:w-auto"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 w-full sm:w-auto md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
+  // 定义表单提交事件处理函数
+  const handleSubmit = async (e: React.FormEvent) => {
+    // 阻止表单默认提交行为 防止页面刷新    
+    e.preventDefault();
+    if (!input.trim() || isLoading) return;
+    
+    const userMessage = input.trim();
+    setMessages(prev => [...prev, { type: 'user', content: userMessage }]);
+    setInput('');
+    setIsLoading(true);
+
+    try {
+      // 转换消息格式为 DeepSeek API 需要的格式
+      const apiMessages: Message[] = messages.map(msg => ({
+        role: msg.type === 'user' ? 'user' : 'assistant',
+        content: msg.content
+      }));
+
+      // 添加当前用户消息
+      apiMessages.push({
+        role: 'user',
+        content: userMessage
+      });
+
+      // 调用 API
+      const response = await sendMessage(apiMessages);
+      
+      // 添加 AI 响应
+      setMessages(prev => [...prev, {
+        type: 'ai',
+        content: response.content
+      }]);
+    } catch (error) {
+      // 添加错误消息
+      setMessages(prev => [...prev, {
+        type: 'ai',
+        content: '抱歉，发生了一些错误。请稍后重试。'
+      }]);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  // 返回组件的 UI 结构 
+  return (
+    <main className="min-h-screen p-4 md:p-8">
+      {/* 顶部导航栏 */}
+      <nav className="glass-effect rounded-full p-4 mb-8">
+        <div className="max-w-7xl mx-auto flex justify-between items-center">
+          <h1 className="text-2xl font-bold gradient-text">AI Chat</h1>
+          <div className="flex items-center space-x-4">
+            <button className="px-4 py-2 rounded-full bg-white/10 hover:bg-white/20 transition-colors">
+              登录
+            </button>
+            <button className="px-4 py-2 rounded-full bg-gradient-to-r from-[#FF6B6B] to-[#4ECDC4] hover:opacity-90 transition-opacity">
+              开始对话
+            </button>
+          </div>
         </div>
-      </main>
-      <footer className="row-start-3 flex gap-[24px] flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
-    </div>
+      </nav>
+
+      {/* 主要内容区域 */}
+      {/*条件渲染：无消息时显示欢迎界面，有消息时显示对话内容
+          使用 map 函数渲染所有消息
+          根据消息类型应用不同样式 */}
+      <div className="max-w-4xl mx-auto">
+        {/* 聊天容器 */}
+        <div className="glass-effect rounded-2xl p-6 mb-6 chat-container">
+          {messages.length === 0 ? (
+            // 如果消息数组为空，显示欢迎信息   
+            <div className="h-full flex flex-col items-center justify-center text-center">
+              <h2 className="text-3xl font-bold mb-4 gradient-text">欢迎使用 AI Chat</h2>
+              <p className="text-gray-400 max-w-md">
+                这是一个智能的 AI 助手，可以帮助你解答问题、编写代码、分析数据等。
+                开始对话吧！
+              </p>
+            </div>
+          ) : ( 
+            // 如果消息数组不为空，显示消息列表   
+            <div className="space-y-4">
+              {messages.map((message, index) => (
+                // 根据消息类型，显示不同的样式 
+                <div
+                  key={index}
+                  className={`message-bubble ${
+                    message.type === 'user' ? 'user-message' : 'ai-message'
+                  }`}
+                > 
+                  {/* 显示消息内容 */}
+                  {message.type === 'ai' ? (
+                    <MarkdownRenderer content={message.content} />
+                  ) : (
+                    message.content
+                  )}
+                </div>
+              ))}
+              {isLoading && (
+                <div className="message-bubble ai-message">
+                  <div className="flex space-x-2">
+                    <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce"></div>
+                    <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce delay-100"></div>
+                    <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce delay-200"></div>
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
+        </div>
+
+        {/* 输入区域 */}
+        <form onSubmit={handleSubmit} className="glass-effect rounded-2xl p-4">
+          <div className="flex space-x-4">
+            <input
+              type="text"
+              value={input}
+              onChange={(e) => setInput(e.target.value)}
+              placeholder="输入你的问题..."
+              className="flex-1 bg-transparent border-none outline-none text-white placeholder-gray-400"
+              disabled={isLoading}
+            />
+            <button
+              type="submit"
+              className="px-6 py-2 rounded-full bg-gradient-to-r from-[#FF6B6B] to-[#4ECDC4] hover:opacity-90 transition-opacity disabled:opacity-50"
+              disabled={isLoading}
+            >
+              {isLoading ? '发送中...' : '发送'}
+            </button>
+          </div>
+        </form>
+      </div>
+    </main>
   );
 }
