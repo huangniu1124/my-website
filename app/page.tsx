@@ -48,8 +48,8 @@ export default function Home() {
         type: 'ai',
         content: response.content
       }]);
-    } catch (error) {
-      // 添加错误消息
+    } catch (error: unknown) {
+      console.error('API 调用失败:', error);
       setMessages(prev => [...prev, {
         type: 'ai',
         content: '抱歉，发生了一些错误。请稍后重试。'
