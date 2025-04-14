@@ -4,8 +4,9 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { Form, Input, Button, Card, message } from 'antd';
-import { MailOutlined, LockOutlined } from '@ant-design/icons';
+import { UserOutlined, LockOutlined, MailOutlined } from '@ant-design/icons';
 import { logger } from '../utils/logger';
+import Image from 'next/image';
 import Logo from '../components/Logo';
 
 export default function LoginPage() {

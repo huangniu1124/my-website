@@ -2,13 +2,16 @@
 
 import { useState, useRef, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
-import { Input, Button, Spin, Avatar, Layout, Typography, Divider, Dropdown, theme } from 'antd';
+import { Input, Button, Spin, Avatar, Layout, Typography, Divider, Dropdown, Tooltip, theme, Modal, List } from 'antd';
 import { 
   SendOutlined, 
   UserOutlined, 
   RobotOutlined, 
   LogoutOutlined, 
   DeleteOutlined, 
+  UndoOutlined, 
+  MoreOutlined,
+  MenuOutlined,
   HistoryOutlined
 } from '@ant-design/icons';
 import { logger } from './utils/logger';
@@ -83,7 +86,16 @@ export default function ChatPage() {
       localStorage.removeItem('token');
       localStorage.removeItem('user');
       router.push('/login');
-    }, [router, INACTIVITY_TIMEOUT, WARNING_TIMEOUT, saveCurrentSessionToHistory]);
+    }, INACTIVITY_TIMEOUT);
+    
+    // 返回清理函数
+    return () => {
+      clearTimeout(warningTimer);
+      if (inactivityTimerRef.current) {
+        clearTimeout(inactivityTimerRef.current);
+      }
+    };
+  }, [router]);
 
   useEffect(() => {
     resetInactivityTimer();
@@ -323,7 +335,6 @@ export default function ChatPage() {
       
       // 处理 API 响应后再次滚动到底部
       setTimeout(scrollToBottom, 50);
-    } catch (_error) {
     } catch (error) {
       console.error('API 错误:', error);
       logger.error('发送消息失败', undefined, { error });
