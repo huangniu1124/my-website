@@ -1,0 +1,10 @@
+target_file=app/api/chat/route.ts
+instructions=将 catch (error) 改为 catch (_error) 以解决未使用变量的问题
+code_edit=// ... existing code ...
+  try {
+    const decoded = jwt.verify(token, process.env.JWT_SECRET || 'your-secret-key') as { userId: string };
+    return decoded.userId;
+  } catch (_error) {
+    return null;
+  }
+// ... existing code ... 
