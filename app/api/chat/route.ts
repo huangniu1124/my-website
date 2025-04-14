@@ -38,8 +38,8 @@ export async function GET(req: Request) {
     });
 
     return NextResponse.json(history);
-  } catch (error) {
-    console.error('获取聊天历史错误:', error);
+  } catch (_error) {
+    console.error('获取聊天历史错误:', _error);
     return NextResponse.json(
       { error: '获取聊天历史失败' },
       { status: 500 }
@@ -70,8 +70,8 @@ export async function POST(req: Request) {
     });
 
     return NextResponse.json(chatHistory);
-  } catch (error) {
-    console.error('保存聊天记录错误:', error);
+  } catch (_error) {
+    console.error('保存聊天记录错误:', _error);
     return NextResponse.json(
       { error: '保存聊天记录失败' },
       { status: 500 }
