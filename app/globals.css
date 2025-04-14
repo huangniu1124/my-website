@@ -27,7 +27,10 @@ body {
 .gradient-text {
   background: linear-gradient(45deg, #FF6B6B, #4ECDC4);
   -webkit-background-clip: text;
+  background-clip: text;
   -webkit-text-fill-color: transparent;
+  text-fill-color: transparent;
+  color: transparent; /* 兜底方案 */
 }
 
 .chat-container {
@@ -50,4 +53,44 @@ body {
 .ai-message {
   background: rgba(78, 205, 196, 0.1);
   margin-right: auto;
+}
+
+.login-container {
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 1rem;
+  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+  width: 350px !important;
+  max-width: 350px !important;
+  margin-left: auto !important;
+  margin-right: auto !important;
+}
+
+.login-card {
+  width: 350px !important;
+  max-width: 350px !important;
+}
+
+.login-card .ant-card-body {
+  width: 100% !important;
+  padding: 24px !important;
+}
+
+/* 覆盖 Ant Design 卡片样式 */
+.ant-card.login-card {
+  width: 350px !important;
+  max-width: 350px !important;
+}
+
+.ant-card.login-card .ant-card-body {
+  width: 100% !important;
+  padding: 24px !important;
+}
+
+@media (max-width: 640px) {
+  .login-container {
+    width: 90%;
+    padding: 1rem;
+  }
 }

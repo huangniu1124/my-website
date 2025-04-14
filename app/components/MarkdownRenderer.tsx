@@ -20,13 +20,13 @@ export default function MarkdownRenderer({ content, className = '' }: MarkdownRe
       code: ({ inline, className, children, ...props }: CodeProps) => {
         const match = /language-(\w+)/.exec(className || '');
         return !inline && match ? (
-          <pre className="bg-gray-800 rounded-lg p-4 overflow-x-auto">
+          <pre className="bg-gray-100 dark:bg-gray-800 rounded-lg p-4 overflow-x-auto">
             <code className={className} {...props}>
               {children}
             </code>
           </pre>
         ) : (
-          <code className="bg-gray-800 rounded px-1 py-0.5" {...props}>
+          <code className="bg-gray-100 dark:bg-gray-800 text-black dark:text-white rounded px-1 py-0.5" {...props}>
             {children}
           </code>
         );
